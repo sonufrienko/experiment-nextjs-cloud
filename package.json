@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy": "npm run build && cdk synth && cdk deploy '*'"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.32.2",
@@ -21,6 +22,7 @@
     "typescript": "~3.7.2"
   },
   "dependencies": {
+    "@aws-cdk/aws-dynamodb": "^1.32.2",
     "@aws-cdk/core": "1.32.2",
     "source-map-support": "^0.5.16"
   }

@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
-import { ExperimentNextjsCloudStack } from '../lib/experiment-nextjs-cloud-stack';
+import DynamoDbStack from '../lib/dynamodb-stack';
 
 const app = new cdk.App();
-new ExperimentNextjsCloudStack(app, 'ExperimentNextjsCloudStack');
+
+/**
+ * Create DynamoDB Table
+ */
+const dynamodbStack = new DynamoDbStack(app, 'PlacesDynamoDBStack', {
+  env: { 'region': 'eu-west-1' },
+  tableName: 'Places'
+})

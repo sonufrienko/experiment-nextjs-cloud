@@ -6,6 +6,9 @@ This is the infrastructure for [this project](https://github.com/sonufrienko/exp
 
 ## Features
 
+- Serverless Architecture
+- DynamoDB
+
 ## How to deploy
 
 ```bash
