@@ -17,6 +17,9 @@ export default class ApiStack extends cdk.Stack {
 
     const { placeTable } = props;
 
+    /**
+     * API
+     */
     this.api = new appsync.GraphQLApi(this, 'Api', {
       name: `places`,
       logConfig: {
@@ -25,12 +28,27 @@ export default class ApiStack extends cdk.Stack {
       schemaDefinitionFile: SCHEMA_FILE,
     });
 
+    /**
+     * API Keys
+     */
     new appsync.CfnApiKey(this, 'ItemsApiKey', {
       apiId: this.api.apiId
     });
 
+    /**
+     * Place
+     */
+    this.createPlaceDataSource(placeTable);
+
+    new cdk.CfnOutput(this, 'api-url', { value: this.api.graphQlUrl });
+  }
+
+  createPlaceDataSource(placeTable: dynamodb.Table) {
     const placeDS = this.api.addDynamoDbDataSource('Place', 'The Place data source', placeTable);
 
+    /**
+     * Query: allPlaces
+     */
     placeDS.createResolver({
       typeName: 'Query',
       fieldName: 'allPlaces',
@@ -54,6 +72,9 @@ export default class ApiStack extends cdk.Stack {
       `),
     });
 
+    /**
+     * Query: place
+     */
     placeDS.createResolver({
       typeName: 'Query',
       fieldName: 'place',
@@ -61,6 +82,9 @@ export default class ApiStack extends cdk.Stack {
       responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
     });
 
+    /**
+     * Mutation: createPlace
+     */
     placeDS.createResolver({
       typeName: 'Mutation',
       fieldName: 'createPlace',
@@ -70,6 +94,9 @@ export default class ApiStack extends cdk.Stack {
       responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
     });
 
+    /**
+     * Mutation: updatePlace
+     */
     placeDS.createResolver({
       typeName: 'Mutation',
       fieldName: 'updatePlace',
@@ -79,13 +106,14 @@ export default class ApiStack extends cdk.Stack {
       responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
     });
 
+    /**
+     * Mutation: deletePlace
+     */
     placeDS.createResolver({
       typeName: 'Mutation',
       fieldName: 'deletePlace',
       requestMappingTemplate: MappingTemplate.dynamoDbDeleteItem('placeId', 'placeId'),
       responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
     });
-
-    new cdk.CfnOutput(this, 'api-url', { value: this.api.graphQlUrl });
   }
 };
