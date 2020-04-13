@@ -1,12 +1,14 @@
 import * as cdk from '@aws-cdk/core';
 import * as appsync from '@aws-cdk/aws-appsync';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import { MappingTemplate, PrimaryKey, Values } from '@aws-cdk/aws-appsync';
+import { MappingTemplate, PrimaryKey, Values, UserPoolDefaultAction } from '@aws-cdk/aws-appsync';
+import * as cognito from "@aws-cdk/aws-cognito";
 
 const SCHEMA_FILE = './schema.graphql';
 
 interface ApiStackProps extends cdk.StackProps {
   placeTable: dynamodb.Table;
+  userPool: cognito.UserPool;
 }
 
 export default class ApiStack extends cdk.Stack {
@@ -15,7 +17,7 @@ export default class ApiStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
-    const { placeTable } = props;
+    const { placeTable, userPool } = props;
 
     /**
      * API
@@ -25,14 +27,20 @@ export default class ApiStack extends cdk.Stack {
       logConfig: {
         fieldLogLevel: appsync.FieldLogLevel.ERROR
       },
+      authorizationConfig: {
+        defaultAuthorization: {
+          apiKeyDesc: 'Public API_KEY for WebApp',
+          expires: this.getApiKeyExpiration(365)
+        },
+        additionalAuthorizationModes: [
+          {
+            userPool,
+            // Select the default permission for requests to your API.
+            defaultAction: UserPoolDefaultAction.ALLOW,
+          },
+        ],
+      },
       schemaDefinitionFile: SCHEMA_FILE,
-    });
-
-    /**
-     * API Keys
-     */
-    new appsync.CfnApiKey(this, 'ItemsApiKey', {
-      apiId: this.api.apiId
     });
 
     /**
@@ -115,5 +123,11 @@ export default class ApiStack extends cdk.Stack {
       requestMappingTemplate: MappingTemplate.dynamoDbDeleteItem('placeId', 'placeId'),
       responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
     });
+  }
+
+  getApiKeyExpiration(days: number): string {
+    const dateNow = new Date();
+    dateNow.setDate(dateNow.getDate() + days);
+    return dateNow.toISOString();
   }
 };
