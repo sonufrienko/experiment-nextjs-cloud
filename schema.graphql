@@ -1,0 +1,29 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  allPlaces(limit: Int, nextToken: String): PlaceList
+  place(placeId: ID!): Place
+}
+
+type Mutation {
+  createPlace(input: CreatePlaceInput!): Place
+  updatePlace(placeId: ID!, input: CreatePlaceInput!): Place
+  deletePlace(placeId: ID!): Place
+}
+
+type Place {
+  placeId: ID!
+  name: String
+}
+
+type PlaceList {
+  items: [Place]
+  nextToken: String
+}
+
+input CreatePlaceInput {
+  name: String
+}
