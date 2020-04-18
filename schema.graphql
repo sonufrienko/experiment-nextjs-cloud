@@ -17,6 +17,57 @@ type Mutation {
 type Place {
   placeId: ID!
   name: String
+  type: String
+  description: String
+  address: Address
+  location: Location
+  openingHours: [WorkDay]
+}
+
+type Address {
+  city: String
+  countryCode: String
+  line1: String
+  postalCode: String
+  state: String
+}
+
+input AddressInput {
+  city: String
+  countryCode: String
+  line1: String
+  postalCode: String
+  state: String
+}
+
+type Location {
+  latitude: Float
+  longitude: Float
+}
+
+input LocationInput {
+  latitude: Float
+  longitude: Float
+}
+
+type WorkDay {
+  open: DayAndTime
+  close: DayAndTime
+}
+
+input WorkDayInput {
+  open: DayAndTimeInput
+  close: DayAndTimeInput
+}
+
+type DayAndTime {
+  day: Int!
+  time: String
+}
+
+input DayAndTimeInput {
+  day: Int!
+  time: String
 }
 
 type PlaceList {
@@ -26,4 +77,9 @@ type PlaceList {
 
 input CreatePlaceInput {
   name: String
+  type: String
+  description: String
+  address: AddressInput
+  location: LocationInput
+  openingHours: [WorkDayInput]
 }
